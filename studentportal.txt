@@ -1,0 +1,124 @@
+lib/
+├── main.dart
+├── home_screen.dart
+└── detail_screen.dart
+
+main.dart
+import 'package:flutter/material.dart';
+import 'home_screen.dart';
+import 'detail_screen.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Navigation Demo',
+      debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const HomeScreen(),
+        '/details': (context) => const DetailScreen(),
+      },
+    );
+  }
+}
+
+
+home_screen.dart
+import 'package:flutter/material.dart';
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Home Screen')),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Welcome to the Home Screen!',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 40),
+
+            // Navigator.push()
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const DetailScreen(data: 'Hello from push()!'),
+                  ),
+                );
+              },
+              child: const Text('Go to Detail (push)'),
+            ),
+            const SizedBox(height: 20),
+
+            // Named route
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  '/details',
+                  arguments: 'Hello from named route!',
+                );
+              },
+              child: const Text('Go to Detail (named route)'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+detail_screen.dart
+import 'package:flutter/material.dart';
+
+class DetailScreen extends StatelessWidget {
+  final String? data;
+
+  const DetailScreen({super.key, this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    // For named route
+    final String? argData = ModalRoute.of(context)?.settings.arguments as String?;
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Detail Screen')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              data ?? argData ?? 'No data received',
+              style: const TextStyle(fontSize: 22),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Back'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
