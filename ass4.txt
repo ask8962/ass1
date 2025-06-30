@@ -1,0 +1,168 @@
+import 'package:flutter/material.dart';
+
+void main() => runApp(const InteractiveDemoApp());
+
+class InteractiveDemoApp extends StatelessWidget {
+  const InteractiveDemoApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Interactive Demo',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF111A16),
+        primaryColor: Colors.green,
+        switchTheme: SwitchThemeData(
+          thumbColor: MaterialStateProperty.all(Colors.white),
+          trackColor: MaterialStateProperty.all(Colors.green),
+        ),
+      ),
+      home: const InteractiveDemo(),
+    );
+  }
+}
+
+class InteractiveDemo extends StatefulWidget {
+  const InteractiveDemo({super.key});
+
+  @override
+  State<InteractiveDemo> createState() => _InteractiveDemoState();
+}
+
+class _InteractiveDemoState extends State<InteractiveDemo> {
+  int _count = 0;
+  bool _isImageVisible = true;
+
+  final ValueNotifier<List<bool>> _taskStatus =
+      ValueNotifier<List<bool>>([false, false, false]);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Interactive Demo'),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Counter
+            const Text(
+              'Counter',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text('Tap the button to increment the counter.'),
+            const SizedBox(height: 8),
+            Text('Count: $_count'),
+            const SizedBox(height: 12),
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green[400],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                onPressed: () {
+                  setState(() {
+                    _count++;
+                  });
+                },
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Text('Increment'),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            // Toggle Visibility
+            const Text(
+              'Toggle Visibility',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text('Toggle the visibility of the widget below.'),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Show Widget'),
+                Switch(
+                  value: _isImageVisible,
+                  onChanged: (value) {
+                    setState(() {
+                      _isImageVisible = value;
+                    });
+                  },
+                ),
+              ],
+            ),
+            if (_isImageVisible)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: Image.network(
+                  'https://images.unsplash.com/photo-1604147706284-3d84d2d82b9d',
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+
+            const SizedBox(height: 30),
+
+            // Task List
+            const Text(
+              'Task List',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text('Mark tasks as completed by checking the boxes.'),
+            const SizedBox(height: 10),
+
+            ValueListenableBuilder<List<bool>>(
+              valueListenable: _taskStatus,
+              builder: (context, values, _) {
+                return Column(
+                  children: List.generate(values.length, (index) {
+                    return CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text('Task ${index + 1}: ${_getTaskTitle(index)}'),
+                      value: values[index],
+                      activeColor: Colors.green,
+                      onChanged: (val) {
+                        final updated = [..._taskStatus.value];
+                        updated[index] = val ?? false;
+                        _taskStatus.value = updated;
+                      },
+                    );
+                  }),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getTaskTitle(int index) {
+    switch (index) {
+      case 0:
+        return 'Buy groceries';
+      case 1:
+        return 'Finish report';
+      case 2:
+        return 'Call mom';
+      default:
+        return 'Task';
+    }
+  }
+}
